@@ -1,6 +1,6 @@
 import errno
 import shlex
-import subprocess
+import subprocess32 as subprocess
 
 
 __version__ = '0.2.0'
@@ -46,7 +46,7 @@ class FFmpeg(object):
     def __repr__(self):
         return '<{0!r} {1!r}>'.format(self.__class__.__name__, self.cmd)
 
-    def run(self, input_data=None, stdout=None, stderr=None):
+    def run(self, input_data=None, stdout=None, stderr=None, timeout=30):
         """Execute FFmpeg command line.
 
         ``input_data`` can contain input for FFmpeg in case ``pipe`` protocol is used for input.
@@ -87,10 +87,12 @@ class FFmpeg(object):
             else:
                 raise
 
-        out = ff_command.communicate(input=input_data)
-        if ff_command.returncode != 0:
-            raise FFRuntimeError(self.cmd, ff_command.returncode, out[0], out[1])
-
+        try:
+            out = ff_command.communicate(input=input_data, timeout=timeout)
+            if ff_command.returncode != 0:
+                raise FFRuntimeError(self.cmd, ff_command.returncode, out[0], out[1])
+        except subprocess.TimeoutExpired:
+            raise FFRuntimeError(self.cmd, -1, "", "FFMpeg timed out")
         return out
 
 

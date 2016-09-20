@@ -33,5 +33,6 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Operating System :: MacOS :: MacOS X'
     ],
+    install_requires=['subprocess32 >= 3.2.7'],
     keywords='ffmpeg ffprobe wrapper audio video transcoding'
 )
